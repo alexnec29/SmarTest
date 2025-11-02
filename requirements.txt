@@ -1,0 +1,35 @@
+# Core dependencies (momentan nu avem nevoie de pachete externe)
+# Python 3.8+ include deja tot ce trebuie:
+# - difflib (pentru similarity matching)
+# - json (pentru export)
+# - abc (pentru clase abstracte)
+# - random (pentru generare parametri)
+
+# === PENTRU URMĂTOARELE FAZE ===
+
+# Pentru GUI (alegeți UNA din variante):
+# tkinter  # Built-in în Python, nu trebuie instalat
+# streamlit>=1.28.0  # Pentru web UI modern
+# PyQt6>=6.5.0  # Pentru desktop UI profesional
+
+# Pentru PDF (când ajungeți la faza PDF):
+# reportlab>=4.0.0  # Generare PDF
+# PyPDF2>=3.0.0  # Citire PDF
+# pdfplumber>=0.10.0  # Alternative pentru citire PDF mai bună
+
+# Pentru evaluare avansată (opțional):
+# fuzzywuzzy>=0.18.0  # Fuzzy string matching mai bun
+# python-Levenshtein>=0.21.0  # Accelerare pentru fuzzywuzzy
+
+# Pentru testing (recomandat):
+# pytest>=7.4.0
+# pytest-cov>=4.1.0
+
+# Pentru alte tipuri de întrebări (când le implementați):
+# numpy>=1.24.0  # Pentru calcule matematice (MinMax, matrici)
+# networkx>=3.1  # Pentru graph coloring, knight's tour
+# matplotlib>=3.7.0  # Pentru vizualizări (opțional)
+
+# === NOTA ===
+# Momentan, implementarea de bază funcționează cu Python stdlib!
+# Decomentați dependințele de mai sus când aveți nevoie de ele.
