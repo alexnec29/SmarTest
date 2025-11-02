@@ -1,0 +1,6 @@
+{
+  "question": "Problem {n}-Queens: What is the most suitable solving strategy?",
+  "answer": "Backtracking is the most suitable strategy for {n}-Queens.",
+  "keywords": ["backtracking", "n-queens"]
+  // TODO: Add parameters for n dynamically if needed
+}

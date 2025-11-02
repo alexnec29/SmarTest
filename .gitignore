@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+
+# PyCharm
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VSCode (if anyone uses it)
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Generated PDFs (optional)
+*.pdf
+
+# Other temporary files
+*.tmp
