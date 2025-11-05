@@ -7,12 +7,14 @@ from .question_types import n_queens
 from .question_types import nash_equilibrium  # <--- 1. IMPORTĂ MODULUL NOU
 from .question_types import generalised_hanoi
 from .question_types import graph_coloring
+from .question_types import knights_tour
 
 QUESTION_TYPES = {
     "n-queens": n_queens,
     "nash-equilibrium": nash_equilibrium,     # <--- 2. ADAUGĂ-L ÎN DICȚIONAR\
     "generalised-hanoi": generalised_hanoi,
-    "graph-coloring": graph_coloring
+    "graph-coloring": graph_coloring,
+    "knights-tour": knights_tour
     # TODO: Alte tipuri de intrebari
 }
 

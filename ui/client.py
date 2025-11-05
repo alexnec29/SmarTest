@@ -1,3 +1,4 @@
+# ui/client.py
 # TODO: Implement a minimal CLI interface for testing
 
 import random
@@ -6,8 +7,8 @@ from core.evaluator import evaluate_answer
 
 
 def run_cli():
-    # Include toate topicurile implementate pana acum
-    topic = input("Enter question type (e.g., n-queens, generalised-hanoi, graph-coloring): ").strip()
+    # MODIFICARE CRITICĂ: Promptul include acum TOATE subiectele
+    topic = input("Enter question type (e.g., n-queens, generalised-hanoi, graph-coloring, knights-tour): ").strip()
 
     if topic.lower() == "n-queens":
         ask_type = random.choice(["strategy", "num_solutions", "first_solution_example"])
@@ -25,12 +26,19 @@ def run_cli():
         question, correct_answer = generate_question_and_answer(topic, params)
         
     elif topic.lower() == "graph-coloring":
-        # Logica pentru Graph Coloring
         ask_type = random.choice(["chromatic_number", "is_k_colorable", "strategy"])
         graph_id = random.choice(["k4", "wheel5"])
         k_colors = random.choice([2, 3, 4])
         params = {"graph_id": graph_id, "ask_type": ask_type, "k_colors": k_colors}
         print(f"Selected random Graph Coloring question: graph_id={graph_id}, ask_type={ask_type}, k_colors={k_colors}")
+        question, correct_answer = generate_question_and_answer(topic, params)
+
+    elif topic.lower() == "knights-tour": # <-- NOUA LOGICĂ
+        ask_type = random.choice(["strategy", "solvability", "complexity"])
+        board_size = random.choice([5, 6, 8])
+        start_pos = random.choice([(1, 1), (3, 4)])
+        params = {"board_size": board_size, "ask_type": ask_type, "start_pos": start_pos}
+        print(f"Selected random Knight's Tour question: board_size={board_size}, ask_type={ask_type}")
         question, correct_answer = generate_question_and_answer(topic, params)
 
     else:
