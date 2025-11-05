@@ -1,24 +1,24 @@
 # core/evaluator.py
 
 from fuzzywuzzy import fuzz
+from unidecode import unidecode  # <-- Importă biblioteca
 
 def evaluate_answer(correct_answer: str, user_answer: str) -> int:
     """
     Evaluează răspunsul utilizatorului folosind fuzzy string matching.
-    token_set_ratio este robust la ordinea cuvintelor și cuvinte extra.
+    Include normalizarea diacriticelor pentru robustețe.
     """
     
-    # TODO: Logica poate fi rafinată și mai mult, de ex. pentru răspunsuri
-    # care sunt liste (ca la n-queens) sau matrici (ca la Nash).
-    
-    # Eliminăm spațiile albe de la început/sfârșit și convertim la litere mici
-    clean_correct = correct_answer.lower().strip()
-    clean_user = user_answer.lower().strip()
-
-    if not clean_user:
+    if not user_answer:
         return 0
 
-    # Calculează un scor de similaritate între 0 și 100
+    # 1. Normalizează (elimină diacriticele) și convertește la litere mici
+    clean_correct = unidecode(correct_answer.lower().strip())
+    clean_user = unidecode(user_answer.lower().strip())
+    
+    # Acum "stânga" devine "stanga" în ambele șiruri
+
+    # 2. Calculează un scor de similaritate între 0 și 100
     score = fuzz.token_set_ratio(clean_correct, clean_user)
     
     return score
