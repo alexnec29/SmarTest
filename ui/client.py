@@ -1,12 +1,20 @@
 # TODO: Implement a minimal CLI interface for testing
 
+import random
 from core.question_factory import generate_question_and_answer
 from core.evaluator import evaluate_answer
 
 
 def run_cli():
-    topic = input("Enter question type (e.g., n-queens): ")
-    question, correct_answer = generate_question_and_answer(topic)
+    topic = input("Enter question type (e.g., n-queens): ").strip()
+    if topic.lower() == "n-queens":
+        ask_type = random.choice(["strategy", "num_solutions", "first_solution_example"])
+        n=random.choice([4,8,10])
+        params = {"n": n, "ask_type": ask_type}
+        print(f"Selected random n-Queens question: ask_type={ask_type}, n={n}")
+        question, correct_answer = generate_question_and_answer(topic, params)
+    else:
+        question, correct_answer = generate_question_and_answer(topic)
 
     if not question:
         print("Unknown topic.")

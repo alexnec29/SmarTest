@@ -1,6 +1,18 @@
 {
   "question": "Problem {n}-Queens: What is the most suitable solving strategy?",
   "answer": "Backtracking is the most suitable strategy for {n}-Queens.",
-  "keywords": ["backtracking", "n-queens"]
-  // TODO: Add parameters for n dynamically if needed
+  "keywords": ["backtracking", "n-queens"],
+  "params": {
+    "n": {
+      "type": "int",
+      "default": 8,
+      "choices": [4, 8, 10]
+    },
+    "ask_type": {
+      "type": "string",
+      "default": "strategy",
+      "choices": ["strategy", "num_solutions", "first_solution_example"]
+    }
+  }
 }
+
