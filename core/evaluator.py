@@ -1,13 +1,24 @@
-# TODO: Evaluate user answers against the correct answer
+# core/evaluator.py
+
+from fuzzywuzzy import fuzz
 
 def evaluate_answer(correct_answer: str, user_answer: str) -> int:
     """
-    Evaluează răspunsul utilizatorului ca procent (0-100%)
-    TODO: Înlocuiți logica simplă cu keyword matching sau fuzzy matching
+    Evaluează răspunsul utilizatorului folosind fuzzy string matching.
+    token_set_ratio este robust la ordinea cuvintelor și cuvinte extra.
     """
-    keywords = correct_answer.lower().split()
-    score = 0
-    for kw in keywords:
-        if kw in user_answer.lower():
-            score += 100 / len(keywords)
-    return min(int(score), 100)
+    
+    # TODO: Logica poate fi rafinată și mai mult, de ex. pentru răspunsuri
+    # care sunt liste (ca la n-queens) sau matrici (ca la Nash).
+    
+    # Eliminăm spațiile albe de la început/sfârșit și convertim la litere mici
+    clean_correct = correct_answer.lower().strip()
+    clean_user = user_answer.lower().strip()
+
+    if not clean_user:
+        return 0
+
+    # Calculează un scor de similaritate între 0 și 100
+    score = fuzz.token_set_ratio(clean_correct, clean_user)
+    
+    return score

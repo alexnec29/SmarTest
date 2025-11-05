@@ -1,11 +1,14 @@
-# TODO: Centralize question and answer generation for multiple types
+# core/question_factory.py
+
 import json
 import os
 from typing import Tuple,Dict, Any
 from .question_types import n_queens
+from .question_types import nash_equilibrium  # <--- 1. IMPORTĂ MODULUL NOU
 
 QUESTION_TYPES = {
-    "n-queens": n_queens
+    "n-queens": n_queens,
+    "nash-equilibrium": nash_equilibrium      # <--- 2. ADAUGĂ-L ÎN DICȚIONAR
     # TODO: Alte tipuri de intrebari
 }
 
