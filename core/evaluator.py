@@ -83,11 +83,68 @@ def is_primarily_numeric_answer(text: str) -> bool:
 
 
 def extract_standalone_number(text: str) -> str:
-    # Extrage primul numar intreg standalone (ex: '92' din 'There are 92 solutions')
-    # Ignoram numerele din interiorul listelor/array-urilor pentru a nu le confunda cu rezultatul final
+    """
+    Extract the most relevant number from text.
+    For answers with context like "minim 4" or "necesită 4", extracts that number.
+    Otherwise extracts the first standalone number.
+    """
+    # Ignoram numerele din interiorul listelor/array-urilor
     text_without_arrays = re.sub(r'\[.*?\]', '', text)
+    
+    # Priority patterns - extract numbers that appear with key context words
+    # These patterns indicate the main answer number (not incidental numbers)
+    priority_patterns = [
+        r'(?:minim|minimum|necesit[aă]|require[sd]?|need[sd]?)\s+(\d+)',  # "minim 4", "necesită 4"
+        r'(?:exact|exactly|precisely)\s+(\d+)',  # "exact 4"
+        r'(?:răspuns|answer|result|solu[tț]ie)[^\d]*(\d+)',  # "răspuns: 4"
+        r'(?:num[ăa]r|number)[^\d]*(\d+)',  # "număr 4"
+        r'(?:este|is|are)\s+(\d+)',  # "este 4"
+    ]
+    
+    # Try priority patterns first
+    for pattern in priority_patterns:
+        match = re.search(pattern, text_without_arrays, re.IGNORECASE)
+        if match:
+            return match.group(1)
+    
+    # Fallback: extract first number
     match = re.search(r'\b\d+\b', text_without_arrays)
     return match.group(0) if match else ""
+
+
+def extract_yes_no_response(text: str) -> Optional[str]:
+    """
+    Extract Yes/No response from text.
+    Returns 'yes', 'no', or None if not found.
+    Handles Romanian (Da/Nu), English (Yes/No), and common variations.
+    """
+    text_clean = text.lower().strip()
+    
+    # Check for No/Nu first (more specific patterns)
+    no_patterns = [
+        r'\bnu\b',  # Romanian "Nu"
+        r'\bno\b',  # English "No"
+        r'\bnegativ',  # "negativ"
+        r'\bfalse\b',  # "false"
+    ]
+    
+    for pattern in no_patterns:
+        if re.search(pattern, text_clean):
+            return 'no'
+    
+    # Check for Yes/Da
+    yes_patterns = [
+        r'\bda\b',  # Romanian "Da"
+        r'\byes\b',  # English "Yes"
+        r'\bpozitiv',  # "pozitiv"
+        r'\btrue\b',  # "true"
+    ]
+    
+    for pattern in yes_patterns:
+        if re.search(pattern, text_clean):
+            return 'yes'
+    
+    return None
 
 
 def extract_keywords_from_text(text: str, keywords: List[str]) -> List[str]:
@@ -201,10 +258,31 @@ def evaluate_answer(correct_answer: str, user_answer: str, keywords: Optional[Li
     correct_num = extract_standalone_number(clean_correct)
     user_num = extract_standalone_number(clean_user)
     
+    # Check for Yes/No responses
+    correct_yes_no = extract_yes_no_response(clean_correct)
+    user_yes_no = extract_yes_no_response(clean_user)
+    
     # Determine if this is truly a numeric answer vs text with incidental numbers
     is_numeric_answer = is_primarily_numeric_answer(clean_correct)
 
     score_key_element = 0
+    
+    # --- Caz SPECIAL: Yes/No + Number (ex: "Nu. Necesită minim 4 culori") ---
+    # This handles graph coloring k-colorability questions and similar
+    if correct_yes_no and correct_num:
+        # Weight: 50% Yes/No match, 40% number match, 10% text similarity
+        yes_no_score = 100 if correct_yes_no == user_yes_no else 0
+        
+        if correct_num == user_num:
+            num_score = 100
+        elif user_num:
+            num_score = 50  # Partial credit if has a number but wrong
+        else:
+            num_score = 0
+        
+        score_text = fuzz.WRatio(clean_correct, clean_user)
+        final_score = int((yes_no_score * 0.5) + (num_score * 0.4) + (score_text * 0.1))
+        return min(final_score, 100)
     
     # --- Caz A: Răspunsul este o LISTĂ / ARRAY (ex: solutie N-Queens) ---
     if correct_array:
