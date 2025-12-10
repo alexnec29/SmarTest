@@ -1,0 +1,6 @@
+{
+  "question": "Minimax cu Alpha-Beta: Care e valoarea și câte noduri sunt vizitate?",
+  "answer": "Se calculează valoarea rădăcinii și se numără nodurile vizitate.",
+  "keywords": ["minimax", "alpha-beta", "pruning", "game tree"],
+  "params": {}
+}

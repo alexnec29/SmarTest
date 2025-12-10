@@ -1,0 +1,6 @@
+{
+  "question": "CSP: Backtracking cu Forward Checking (FC). Care e următorul pas?",
+  "answer": "Se aplică FC și se alege următoarea variabilă.",
+  "keywords": ["csp", "backtracking", "forward checking", "fc"],
+  "params": {}
+}

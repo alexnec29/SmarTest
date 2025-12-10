@@ -1,20 +1,24 @@
-# core/question_factory.py
-
 import json
 import os
 from typing import Tuple,Dict, Any
 from .question_types import n_queens
-from .question_types import nash_equilibrium  # <--- 1. IMPORTĂ MODULUL NOU
+from .question_types import nash_equilibrium
 from .question_types import generalised_hanoi
 from .question_types import graph_coloring
 from .question_types import knights_tour
+from .question_types import csp   
+from .question_types import minimax
 
 QUESTION_TYPES = {
     "n-queens": n_queens,
-    "nash-equilibrium": nash_equilibrium,     # <--- 2. ADAUGĂ-L ÎN DICȚIONAR\
-    "generalised-hanoi": generalised_hanoi,
-    "graph-coloring": graph_coloring,
-    "knights-tour": knights_tour
+    "nash_equilibrium": nash_equilibrium,
+    "generalised_hanoi": generalised_hanoi,
+    "graph_coloring": graph_coloring,
+    "knights_tour": knights_tour,
+    "csp": csp,
+    "minimax": minimax,
+    
+
     # TODO: Alte tipuri de intrebari
 }
 
