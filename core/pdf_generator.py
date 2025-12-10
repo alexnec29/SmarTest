@@ -12,7 +12,9 @@ try:
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
     from reportlab.lib.enums import TA_CENTER, TA_LEFT
     REPORTLAB_AVAILABLE = True
-except ImportError:
+except ImportError as e:
+    import logging
+    logging.debug(f"ReportLab not available: {e}")
     REPORTLAB_AVAILABLE = False
 
 

@@ -15,7 +15,7 @@ from core.pdf_generator import PDFGenerator, is_pdf_available
 def display_menu():
     """Display the main menu."""
     print("\n" + "=" * 60)
-    print("SMARTEST - AI EXAM QUESTION GENERATOR")
+    print("SmarTest - AI EXAM QUESTION GENERATOR")
     print("=" * 60)
     print("1. Generate a single question")
     print("2. Generate a test (multiple questions)")
@@ -153,6 +153,15 @@ def generate_test():
             questions_file = input("Questions filename (default: questions.pdf): ").strip() or "questions.pdf"
             answers_file = input("Answers filename (default: answers.pdf): ").strip() or "answers.pdf"
             
+            # Sanitize filenames
+            import os
+            questions_file = os.path.basename(questions_file)
+            answers_file = os.path.basename(answers_file)
+            if not questions_file.endswith('.pdf'):
+                questions_file += '.pdf'
+            if not answers_file.endswith('.pdf'):
+                answers_file += '.pdf'
+            
             try:
                 pdf_gen = PDFGenerator()
                 pdf_gen.generate_questions_pdf(questions, questions_file)
@@ -189,7 +198,10 @@ def answer_test(questions: List = None, correct_answers: List = None):
     """
     if questions is None:
         # Load from file
+        import os
         filename = input("\nEnter questions filename: ").strip()
+        # Sanitize filename
+        filename = os.path.basename(filename)
         if not os.path.exists(filename):
             print(f"File not found: {filename}")
             return

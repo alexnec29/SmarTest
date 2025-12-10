@@ -158,9 +158,15 @@ class TestBuilder:
         Save questions to a text file.
         
         Args:
-            filename: Output filename
+            filename: Output filename (sanitized)
             include_topic: Whether to include topic names
         """
+        # Sanitize filename
+        import os
+        filename = os.path.basename(filename)  # Remove any path components
+        if not filename.endswith('.txt'):
+            filename += '.txt'
+        
         content = self.get_questions_text(include_topic)
         with open(filename, 'w', encoding='utf-8') as f:
             f.write(content)
@@ -170,8 +176,14 @@ class TestBuilder:
         Save answers to a text file.
         
         Args:
-            filename: Output filename
+            filename: Output filename (sanitized)
         """
+        # Sanitize filename
+        import os
+        filename = os.path.basename(filename)  # Remove any path components
+        if not filename.endswith('.txt'):
+            filename += '.txt'
+        
         content = self.get_answers_text()
         with open(filename, 'w', encoding='utf-8') as f:
             f.write(content)
