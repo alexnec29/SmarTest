@@ -1,6 +1,6 @@
 {
-  "question": "CSP: Backtracking cu Forward Checking (FC). Care e următorul pas?",
-  "answer": "Se aplică FC și se alege următoarea variabilă.",
+  "question": "Date fiind variabilele ({variables}), domeniile ({domains}), constrângerile ({constraints}) și asignarea parțială ({partial_assignment}), care va fi asignarea variabilei rămase dacă se aplică Backtracking cu optimizarea {optimization} pentru primul pas?",
+  "answer": "Pasul următor aplicând FC este: {fc_result}",
   "keywords": ["csp", "backtracking", "forward checking", "fc"],
   "params": {}
 }
