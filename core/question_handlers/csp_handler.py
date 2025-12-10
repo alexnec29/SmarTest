@@ -16,7 +16,18 @@ class CSPHandler(BaseQuestionHandler):
             ("V1", "V2", lambda a, b: a != b),
             ("V2", "V3", lambda a, b: a < b)
         ]
-        partial_assignment = {random.choice(variables): random.choice([1, 2, 3])}
+        
+        # Generate a valid partial assignment
+        # Choose one variable and a value that won't immediately violate constraints
+        chosen_var = random.choice(["V1", "V3"])  # Avoid V2 as it's constrained by both
+        if chosen_var == "V1":
+            # V1 can be any value (V2 will be constrained to != V1)
+            chosen_val = random.choice([1, 2, 3])
+        else:  # V3
+            # V3 should be >= 2 to allow V2 < V3
+            chosen_val = random.choice([2, 3])
+        
+        partial_assignment = {chosen_var: chosen_val}
         
         return {
             "variables": variables,
