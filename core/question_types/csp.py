@@ -1,26 +1,29 @@
-# core/question_types/csp.py
-
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any
 import random
+import json
+import os
 
-# Ex: Variabile: V1, V2, V3. Domenii: {1, 2, 3}. Constrângeri: V1 != V2, V2 < V3
+# Calea către folderul cu template-uri
+TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "templates")
+TEMPLATE_FILE = "csp.json"
+
+def load_template() -> Dict[str, Any]:
+    """Încarcă template-ul JSON pentru CSP."""
+    template_path = os.path.join(TEMPLATES_PATH, TEMPLATE_FILE)
+    if not os.path.exists(template_path):
+        raise FileNotFoundError(f"Template-ul JSON nu a fost găsit: {template_path}")
+    with open(template_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
 def generate_csp_problem() -> Dict[str, Any]:
-    """ Generează o problemă CSP simplă pentru 3 variabile și 3 valori. """
+    """Generează o problemă CSP simplă cu 3 variabile și 3 valori."""
     variables = ["V1", "V2", "V3"]
     domains = {v: [1, 2, 3] for v in variables}
-    
-    # Constrângeri binare simple: V1!=V2, V2<V3
     constraints = [
         ("V1", "V2", lambda a, b: a != b),
         ("V2", "V3", lambda a, b: a < b)
     ]
-    
-    # Asignare parțială aleatorie pentru 1 variabilă (e.g., V1=2)
     partial_assignment = {random.choice(variables): random.choice([1, 2, 3])}
-    
-    # Asigurăm că asignarea parțială este validă pentru a avea soluții potențiale
-    # (Logica simplificată aici pentru a nu complica generarea problemei)
-    
     return {
         "variables": variables,
         "domains": domains,
@@ -30,78 +33,75 @@ def generate_csp_problem() -> Dict[str, Any]:
     }
 
 def solve_csp_with_fc(problem: Dict[str, Any]) -> str:
-    """ Simulează rezolvarea cu Backtracking + Forward Checking (FC). """
+    """Aplică Forward Checking pe problema CSP și returnează primul pas valid."""
     variables = problem["variables"]
     domains = problem["domains"]
     constraints = problem["constraints"]
-    
-    # Copierea domeniilor pentru a simula FC
     current_domains = {v: list(domains[v]) for v in domains}
     assignment = dict(problem["partial_assignment"])
-    
-    # Aplica FC inițial pe baza asignării parțiale
+
+    # Aplicare Forward Checking pe asignarea parțială
     for assigned_var, assigned_val in assignment.items():
         for c_var, d_var, constraint_func in constraints:
             if c_var == assigned_var:
-                # Reducere domeniu pentru d_var
-                new_domain = [val for val in current_domains[d_var] if constraint_func(assigned_val, val)]
-                current_domains[d_var] = new_domain
+                current_domains[d_var] = [val for val in current_domains[d_var] if constraint_func(assigned_val, val)]
             elif d_var == assigned_var:
-                # Reducere domeniu pentru c_var
-                new_domain = [val for val in current_domains[c_var] if constraint_func(val, assigned_val)]
-                current_domains[c_var] = new_domain
+                current_domains[c_var] = [val for val in current_domains[c_var] if constraint_func(val, assigned_val)]
 
-    # Backtracking simplificat:
+    # Selectare variabilă rămasă
     remaining_vars = [v for v in variables if v not in assignment]
-    
-    # Dacă rămân variabile (simulăm doar primul pas al soluției):
     if remaining_vars:
-        next_var = remaining_vars[0] # Selectează prima variabilă rămasă (fără MRV)
-        
+        next_var = remaining_vars[0]
         for value in current_domains[next_var]:
-            # Asignare și testare:
             temp_assignment = assignment.copy()
             temp_assignment[next_var] = value
-            
-            # Verifică dacă noua asignare parțială este consistentă cu constrângerile inițiale
+
+            # Verifică consistența cu constrângerile
             is_consistent = True
             for c_var, d_var, constraint_func in constraints:
                 val_c = temp_assignment.get(c_var)
                 val_d = temp_assignment.get(d_var)
-                if val_c is not None and val_d is not None:
-                    if not constraint_func(val_c, val_d):
-                        is_consistent = False
-                        break
-            
+                if val_c is not None and val_d is not None and not constraint_func(val_c, val_d):
+                    is_consistent = False
+                    break
+
             if is_consistent:
-                # Returnează prima soluție parțială validă (pentru scopul întrebării)
-                return f"Asignarea continuă cu: {next_var} = {value}. Asignarea parțială devine: {temp_assignment}"
-                
-    
-    # Fallback
-    return f"Nu s-a putut găsi o asignare consistentă pentru continuarea rezolvării, dat fiind {problem['optimization']}."
+                return f"{next_var} = {value}, asignare parțială: {temp_assignment}"
+
+    return "Nu există o asignare consistentă pentru pasul următor."
 
 def generate_question(params: Dict[str, Any] = None) -> str:
+    """Generează o întrebare din template-ul JSON, cu valori dinamice pentru variabile și domenii."""
+    template = load_template()
     problem = generate_csp_problem()
-    
-    vars_str = ", ".join(problem["variables"])
-    domains_str = ", ".join(f"{v}: {d}" for v, d in problem["domains"].items())
-    partial_str = ", ".join(f"{v} = {val}" for v, val in problem["partial_assignment"].items())
-    
-    constraints_str = "V1 != V2, V2 < V3" 
-    
-    question = (
-        f"Date fiind variabilele ({vars_str}), domeniile ({domains_str}), constrângerile ({constraints_str}) "
-        f"și asignarea parțială ({partial_str}), care va fi asignarea variabilei rămase dacă se aplică Backtracking cu optimizarea {problem['optimization']} pentru primul pas?"
-    )
-    # Stocăm problema în parametri pentru a o putea folosi în generate_answer
-    if params is None:
-        params = {}
-    params["csp_problem"] = problem
-    return question
+
+    # Construim înlocuirile pentru template
+    replacements = {
+        "variables": ", ".join(problem["variables"]),
+        "domains": str(problem["domains"]),
+        "constraints": "V1 != V2, V2 < V3",
+        "partial_assignment": str(problem["partial_assignment"]),
+        "optimization": problem["optimization"]
+    }
+
+    # Păstrăm problema în params pentru a fi folosită în generate_answer
+    if params is not None:
+        params["csp_problem"] = problem
+
+    return template["question"].format(**replacements)
+
 
 def generate_answer(params: Dict[str, Any] = None) -> str:
-    if params and "csp_problem" in params:
-        problem = params["csp_problem"]
-        return solve_csp_with_fc(problem)
-    return "Eroare la generarea răspunsului CSP."
+    template = load_template()
+
+    # Dacă nu există problemă CSP în params, generăm una
+    if params is None:
+        params = {}
+    if "csp_problem" not in params:
+        params["csp_problem"] = generate_csp_problem()
+
+    # Calculăm răspunsul dinamic
+    result = solve_csp_with_fc(params["csp_problem"])
+
+    return template["answer"].format(fc_result=result)
+

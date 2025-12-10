@@ -1,6 +1,18 @@
 {
-  "question": "Minimax cu Alpha-Beta: Care e valoarea și câte noduri sunt vizitate?",
-  "answer": "Se calculează valoarea rădăcinii și se numără nodurile vizitate.",
   "keywords": ["minimax", "alpha-beta", "pruning", "game tree"],
-  "params": {}
+  "params": {},
+  "questions": [
+    {
+      "id": "alpha_beta_pruning",
+      "question": "Pentru arborele de joc dat (MAX la rădăcină) cu frunzele A, B, C, D:\n{tree_description}\n\nCare va fi valoarea din rădăcină și câte noduri frunze vor fi vizitate în cazul aplicării strategiei MinMax cu optimizarea Alpha-Beta?",
+      "answer": "Computing minimax result...",
+      "requires_computation": true
+    },
+    {
+      "id": "minimax_basic",
+      "question": "Minimax cu Alpha-Beta: Care e valoarea și câte noduri sunt vizitate?",
+      "answer": "Se calculează valoarea rădăcinii și se numără nodurile vizitate.",
+      "requires_computation": false
+    }
+  ]
 }

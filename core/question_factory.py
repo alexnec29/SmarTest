@@ -1,67 +1,142 @@
+# core/question_factory.py
+
 import json
 import os
-from typing import Tuple,Dict, Any
-from .question_types import n_queens
-from .question_types import nash_equilibrium
-from .question_types import generalised_hanoi
-from .question_types import graph_coloring
-from .question_types import knights_tour
-from .question_types import csp   
-from .question_types import minimax
+from typing import Tuple, Dict, Any
 
-QUESTION_TYPES = {
-    "n-queens": n_queens,
-    "nash_equilibrium": nash_equilibrium,
-    "generalised_hanoi": generalised_hanoi,
-    "graph_coloring": graph_coloring,
-    "knights_tour": knights_tour,
-    "csp": csp,
-    "minimax": minimax,
-    
+from .base_question_handler import BaseQuestionHandler
+from .question_handlers import (
+    NQueensHandler,
+    KnightsTourHandler,
+    GraphColoringHandler,
+    GeneralisedHanoiHandler,
+    MinimaxHandler,
+    NashEquilibriumHandler,
+    CSPHandler,
+)
 
-    # TODO: Alte tipuri de intrebari
+# Map topic names to handler classes
+HANDLER_CLASSES = {
+    "n-queens": NQueensHandler,
+    "knights-tour": KnightsTourHandler,
+    "knights_tour": KnightsTourHandler,
+    "graph-coloring": GraphColoringHandler,
+    "graph_coloring": GraphColoringHandler,
+    "generalised-hanoi": GeneralisedHanoiHandler,
+    "generalised_hanoi": GeneralisedHanoiHandler,
+    "minimax": MinimaxHandler,
+    "nash-equilibrium": NashEquilibriumHandler,
+    "nash_equilibrium": NashEquilibriumHandler,
+    "csp": CSPHandler,
 }
 
-TEMPLATES_PATH = os.path.join(os.path.dirname(__file__),"..", "templates")   
+TEMPLATES_PATH = os.path.join(os.path.dirname(__file__), "..", "templates")
+
 
 def load_template(topic: str) -> Dict[str, Any]:
     """
-    Încarcă un șablon JSON pentru un topic dat.
+    Load a JSON template for a given topic.
+    
+    Args:
+        topic: The topic name
+        
+    Returns:
+        Dictionary containing the template data
     """
     path = os.path.join(TEMPLATES_PATH, f"{topic.replace('-', '_')}.json")
     try:
-        with open(path,"r", encoding="utf-8") as f:
+        with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
     except FileNotFoundError:
         return {}
 
+
 def generate_question_and_answer(topic: str, params: Dict[str, Any] = None) -> Tuple[Any, Any]:
     """
-    Returnează întrebarea și răspunsul corect pentru topicul dat.
-    params poate conține parametri dinamici (ex: {'n':8, 'ask_type':'strategy'}).
+    Generate question and answer for the given topic.
+    
+    This is the main entry point for question generation. It:
+    1. Loads the template for the topic
+    2. Creates the appropriate handler
+    3. Generates the question and answer dynamically
+    
+    Args:
+        topic: The topic name (e.g., 'n-queens', 'minimax')
+        params: Optional parameters for question generation
+        
+    Returns:
+        Tuple of (question, answer)
     """
     params = params or {}
-    template = load_template(topic)
-
-    #Completeaza valorile implicite din template daca exista
-
-    if "params" in template:
-        for k, meta in template["params"].items():
-            params.setdefault(k, meta.get("default"))
-
-    module = QUESTION_TYPES.get(topic.lower())
-    if not module:
-        #topic necunoscut folosim template-ul daca exista
-        q= template.get("question")
-        a = template.get("answer")
-        if q:
-            try:
-                q = q.format(**params)
-            except Exception:
-                pass
-        return q, a
     
-    #daca modulul are functii, le apelam cu parametrii
-    q = module.generate_question(**params) if hasattr(module, "generate_question") else template.get("question","").format(**params)
-    a = module.generate_answer(**params) if hasattr(module, "generate_answer") else template.get("answer","").format(**params)
-    return q, a
+    # Normalize topic name
+    topic_normalized = topic.lower().replace("-", "_")
+    
+    # Load template
+    template = load_template(topic)
+    
+    if not template:
+        # Unknown topic - return empty
+        return None, None
+    
+    # Get handler class for this topic
+    handler_class = HANDLER_CLASSES.get(topic.lower())
+    
+    if not handler_class:
+        # No handler found - try to use template directly
+        return _generate_from_template_only(template, params)
+    
+    # Create handler instance
+    handler = handler_class(template)
+    
+    # Generate question and answer
+    question, answer = handler.generate(params)
+    
+    return question, answer
+
+
+def _generate_from_template_only(template: Dict[str, Any], params: Dict[str, Any]) -> Tuple[str, str]:
+    """
+    Fallback method to generate from template when no handler is available.
+    
+    Args:
+        template: Template dictionary
+        params: Parameters for generation
+        
+    Returns:
+        Tuple of (question, answer)
+    """
+    # Get first question if multiple exist
+    questions = template.get("questions", [])
+    
+    if questions:
+        # Use first question variant
+        variant = questions[0]
+        question_template = variant.get("question", "")
+        answer_template = variant.get("answer", "")
+    else:
+        # Old format - single question/answer
+        question_template = template.get("question", "")
+        answer_template = template.get("answer", "")
+    
+    # Apply default parameters from template
+    params_definition = template.get("params", {})
+    for key, meta in params_definition.items():
+        if key not in params:
+            if isinstance(meta, dict):
+                params[key] = meta.get("default")
+            else:
+                params[key] = meta
+    
+    # Format templates
+    try:
+        question = question_template.format(**params)
+    except Exception:
+        question = question_template
+    
+    try:
+        answer = answer_template.format(**params)
+    except Exception:
+        answer = answer_template
+    
+    return question, answer

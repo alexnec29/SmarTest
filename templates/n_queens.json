@@ -1,18 +1,31 @@
 {
-  "question": "Problem {n}-Queens: What is the most suitable solving strategy?",
-  "answer": "Backtracking is the most suitable strategy for {n}-Queens.",
   "keywords": ["backtracking", "n-queens"],
   "params": {
     "n": {
       "type": "int",
       "default": 8,
       "choices": [4, 8, 10]
-    },
-    "ask_type": {
-      "type": "string",
-      "default": "strategy",
-      "choices": ["strategy", "num_solutions", "first_solution_example"]
     }
-  }
+  },
+  "questions": [
+    {
+      "id": "strategy",
+      "question": "Problem {n}-Queens: What is the most suitable solving strategy?",
+      "answer": "Backtracking is the most suitable strategy for {n}-Queens.",
+      "requires_computation": false
+    },
+    {
+      "id": "num_solutions",
+      "question": "Problem {n}-Queens: How many distinct solutions exist?",
+      "answer": "Computing solutions...",
+      "requires_computation": true
+    },
+    {
+      "id": "first_solution_example",
+      "question": "Problem {n}-Queens: Provide one valid arrangement (column indices per row).",
+      "answer": "Computing solution...",
+      "requires_computation": true
+    }
+  ]
 }
 
