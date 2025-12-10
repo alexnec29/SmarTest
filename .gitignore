@@ -31,3 +31,9 @@ Thumbs.db
 
 # Other temporary files
 *.tmp
+
+# Generated test files (exclude from repo)
+questions.txt
+answers.txt
+test_*.txt
+*_output.txt

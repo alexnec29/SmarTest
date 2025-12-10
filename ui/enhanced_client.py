@@ -63,6 +63,7 @@ def select_topics(builder: TestBuilder) -> List[str]:
 def generate_single_question():
     """Generate and answer a single question."""
     from core.question_factory import generate_question_and_answer
+    from core.evaluator import load_keywords_for_topic
     
     builder = TestBuilder()
     display_topics(builder)
@@ -94,8 +95,11 @@ def generate_single_question():
         print("No answer provided.")
         return
     
-    # Evaluate
-    score = evaluate_answer(correct_answer, user_answer)
+    # Load keywords for this topic
+    keywords = load_keywords_for_topic(topic_input)
+    
+    # Evaluate with keywords
+    score = evaluate_answer(correct_answer, user_answer, keywords)
     
     print("\n" + "=" * 60)
     print("EVALUATION RESULT")
@@ -196,6 +200,8 @@ def answer_test(questions: List = None, correct_answers: List = None):
         questions: List of question objects (if already generated)
         correct_answers: List of correct answers (if already generated)
     """
+    from core.evaluator import load_keywords_for_topic
+    
     if questions is None:
         # Load from file
         import os
@@ -230,7 +236,9 @@ def answer_test(questions: List = None, correct_answers: List = None):
         user_answers.append(user_answer)
         
         if correct_answers and i <= len(correct_answers):
-            score = evaluate_answer(correct_answers[i-1], user_answer)
+            # Load keywords for this question's topic
+            keywords = load_keywords_for_topic(q.get('topic', ''))
+            score = evaluate_answer(correct_answers[i-1], user_answer, keywords)
             scores.append(score)
     
     # Display results
