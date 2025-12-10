@@ -1,0 +1,48 @@
+================================================================================
+TEST - ARTIFICIAL INTELLIGENCE
+================================================================================
+
+Question 1:
+Topic: N-Queens Problem (Backtracking)
+
+Problem 8-Queens: How many distinct solutions exist?
+
+--------------------------------------------------------------------------------
+
+Question 2:
+Topic: Minimax with Alpha-Beta Pruning
+
+Pentru arborele de joc dat (MAX la rădăcină) cu frunzele A, B, C, D:
+Nivel 0 (Rădăcină - MAX):
+  - Nod 1 (MIN) are frunzele: A (Valoare: 9) și B (Valoare: 10)
+  - Nod 2 (MIN) are frunzele: C (Valoare: 3) și D (Valoare: 3)
+
+Care va fi valoarea din rădăcină și câte noduri frunze vor fi vizitate în cazul aplicării strategiei MinMax cu optimizarea Alpha-Beta?
+
+--------------------------------------------------------------------------------
+
+Question 3:
+Topic: Constraint Satisfaction Problems
+
+Date fiind variabilele (V1, V2, V3), domeniile ({'V1': [1, 2, 3], 'V2': [1, 2, 3], 'V3': [1, 2, 3]}), constrângerile (V1 != V2, V2 < V3) și asignarea parțială ({'V1': 1}), care va fi asignarea variabilei rămase dacă se aplică Backtracking cu optimizarea Forward Checking (FC) pentru primul pas?
+
+--------------------------------------------------------------------------------
+
+Question 4:
+Topic: N-Queens Problem (Backtracking)
+
+Problem 8-Queens: What is the most suitable solving strategy?
+
+--------------------------------------------------------------------------------
+
+Question 5:
+Topic: Minimax with Alpha-Beta Pruning
+
+Pentru arborele de joc dat (MAX la rădăcină) cu frunzele A, B, C, D:
+Nivel 0 (Rădăcină - MAX):
+  - Nod 1 (MIN) are frunzele: A (Valoare: 7) și B (Valoare: 8)
+  - Nod 2 (MIN) are frunzele: C (Valoare: 10) și D (Valoare: 3)
+
+Care va fi valoarea din rădăcină și câte noduri frunze vor fi vizitate în cazul aplicării strategiei MinMax cu optimizarea Alpha-Beta?
+
+--------------------------------------------------------------------------------
