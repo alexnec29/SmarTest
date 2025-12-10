@@ -1,6 +1,18 @@
 {
-  "question": "Date fiind variabilele ({variables}), domeniile ({domains}), constrângerile ({constraints}) și asignarea parțială ({partial_assignment}), care va fi asignarea variabilei rămase dacă se aplică Backtracking cu optimizarea {optimization} pentru primul pas?",
-  "answer": "Pasul următor aplicând FC este: {fc_result}",
   "keywords": ["csp", "backtracking", "forward checking", "fc"],
-  "params": {}
+  "params": {},
+  "questions": [
+    {
+      "id": "csp_forward_checking",
+      "question": "Date fiind variabilele ({variables}), domeniile ({domains}), constrângerile ({constraints}) și asignarea parțială ({partial_assignment}), care va fi asignarea variabilei rămase dacă se aplică Backtracking cu optimizarea {optimization} pentru primul pas?",
+      "answer": "Pasul următor aplicând FC este: {fc_result}",
+      "requires_computation": true
+    },
+    {
+      "id": "csp_basic",
+      "question": "Ce este un Constraint Satisfaction Problem (CSP)?",
+      "answer": "Un CSP este definit de un set de variabile, domenii pentru fiecare variabilă și constrângeri care trebuie satisfăcute.",
+      "requires_computation": false
+    }
+  ]
 }

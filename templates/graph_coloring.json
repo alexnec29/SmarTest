@@ -1,9 +1,7 @@
 {
-    "question": "Care este numărul cromatic pentru graful dat?",
-    "answer": "Numărul cromatic se determină prin inspecție sau algoritmi de colorare.",
     "keywords": [
         "graph coloring",
-        "număr cromatic",
+        "número cromatic",
         "backtracking",
         "CSP"
     ],
@@ -11,28 +9,32 @@
         "graph_id": {
             "type": "string",
             "default": "k4",
-            "choices": [
-                "k4",
-                "wheel5"
-            ]
-        },
-        "ask_type": {
-            "type": "string",
-            "default": "chromatic_number",
-            "choices": [
-                "chromatic_number",
-                "is_k_colorable",
-                "strategy"
-            ]
+            "choices": ["k4", "wheel5"]
         },
         "k_colors": {
             "type": "int",
             "default": 3,
-            "choices": [
-                2,
-                3,
-                4
-            ]
+            "choices": [2, 3, 4]
         }
-    }
+    },
+    "questions": [
+        {
+            "id": "chromatic_number",
+            "question": "Fie graful {graph_name} cu nodurile {nodes} și muchiile: {edges}. Care este numărul cromatic (numărul minim de culori necesare)?",
+            "answer": "Computing chromatic number...",
+            "requires_computation": true
+        },
+        {
+            "id": "is_k_colorable",
+            "question": "Fie graful {graph_name} cu nodurile {nodes} și muchiile: {edges}. Poate fi colorat graful cu maxim {k_colors} culori?",
+            "answer": "Computing colorability...",
+            "requires_computation": true
+        },
+        {
+            "id": "strategy",
+            "question": "Fie graful {graph_name} cu nodurile {nodes} și muchiile: {edges}. Care este cea mai potrivită strategie de rezolvare (algoritm)?",
+            "answer": "Cea mai potrivită strategie este Backtracking-ul cu euristici (ex: MRV - Most Restricted Variable) sau algoritmi de forță brută optimizați.",
+            "requires_computation": false
+        }
+    ]
 }

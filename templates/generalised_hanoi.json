@@ -1,6 +1,4 @@
 {
-    "question": "Problem Generalised Hanoi ({n_discs} discs, {n_pegs} pegs): What is the minimum number of moves required to transfer all discs from the start peg to the end peg?",
-    "answer": "The optimal solution is generally found using a recursive approach (Frame-Stewart algorithm or similar) which minimizes the total number of transfers.",
     "keywords": [
         "hanoi",
         "generalised",
@@ -11,28 +9,32 @@
         "n_discs": {
             "type": "int",
             "default": 4,
-            "choices": [
-                3,
-                4,
-                5
-            ]
+            "choices": [3, 4, 5]
         },
         "n_pegs": {
             "type": "int",
             "default": 3,
-            "choices": [
-                3,
-                4
-            ]
-        },
-        "ask_type": {
-            "type": "string",
-            "default": "moves_strategy",
-            "choices": [
-                "moves_strategy",
-                "min_moves",
-                "complexity"
-            ]
+            "choices": [3, 4]
         }
-    }
+    },
+    "questions": [
+        {
+            "id": "moves_strategy",
+            "question": "Problem Generalised Hanoi ({n_discs} discs, {n_pegs} pegs): What is the minimum number of moves required to transfer all discs from the start peg to the end peg?",
+            "answer": "The minimum number of moves is an open problem for the general case (n_pegs > 3). The optimal solution is generally found using a recursive approach (Frame-Stewart algorithm or similar) which minimizes the total number of transfers.",
+            "requires_computation": false
+        },
+        {
+            "id": "min_moves",
+            "question": "Problem Generalised Hanoi ({n_discs} discs, {n_pegs} pegs): What is the *exact* minimum number of moves required?",
+            "answer": "Computing minimum moves...",
+            "requires_computation": true
+        },
+        {
+            "id": "complexity",
+            "question": "Problem Generalised Hanoi ({n_discs} discs, {n_pegs} pegs): What is the time complexity of the optimal algorithm in terms of n_discs (n)?",
+            "answer": "Computing complexity...",
+            "requires_computation": true
+        }
+    ]
 }
