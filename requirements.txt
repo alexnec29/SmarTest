@@ -1,3 +1,4 @@
 # requirements.txt
 fuzzywuzzy[speed]
 unidecode
+reportlab
