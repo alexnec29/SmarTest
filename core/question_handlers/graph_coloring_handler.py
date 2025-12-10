@@ -64,6 +64,10 @@ class GraphColoringHandler(BaseQuestionHandler):
         
         return question, answer
     
+    def needs_custom_generation(self, variant: Dict[str, Any], params: Dict[str, Any]) -> bool:
+        """Graph coloring always needs custom generation to populate graph data."""
+        return True
+    
     def _generate_chromatic_number_answer(self, graph: Dict[str, Any]) -> str:
         """Generate answer for chromatic number question."""
         chromatic_number = graph.get("chromatic_number", 0)
