@@ -1,0 +1,38 @@
+{
+    "question": "Care este numărul cromatic pentru graful dat?",
+    "answer": "Numărul cromatic se determină prin inspecție sau algoritmi de colorare.",
+    "keywords": [
+        "graph coloring",
+        "număr cromatic",
+        "backtracking",
+        "CSP"
+    ],
+    "params": {
+        "graph_id": {
+            "type": "string",
+            "default": "k4",
+            "choices": [
+                "k4",
+                "wheel5"
+            ]
+        },
+        "ask_type": {
+            "type": "string",
+            "default": "chromatic_number",
+            "choices": [
+                "chromatic_number",
+                "is_k_colorable",
+                "strategy"
+            ]
+        },
+        "k_colors": {
+            "type": "int",
+            "default": 3,
+            "choices": [
+                2,
+                3,
+                4
+            ]
+        }
+    }
+}
