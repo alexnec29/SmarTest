@@ -1,0 +1,24 @@
+================================================================================
+TEST - ARTIFICIAL INTELLIGENCE
+================================================================================
+
+Question 1:
+Topic: N-Queens Problem (Backtracking)
+
+Problem 8-Queens: What is the most suitable solving strategy?
+
+--------------------------------------------------------------------------------
+
+Question 2:
+Topic: N-Queens Problem (Backtracking)
+
+Problem 8-Queens: Provide one valid arrangement (column indices per row).
+
+--------------------------------------------------------------------------------
+
+Question 3:
+Topic: N-Queens Problem (Backtracking)
+
+Problem 8-Queens: What is the most suitable solving strategy?
+
+--------------------------------------------------------------------------------
