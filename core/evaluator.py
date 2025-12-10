@@ -93,6 +93,7 @@ def extract_standalone_number(text: str) -> str:
 def extract_keywords_from_text(text: str, keywords: List[str]) -> List[str]:
     """
     Extract which keywords from the list are present in the text.
+    Uses word boundary matching to avoid false positives.
     
     Args:
         text: The text to search (normalized)
@@ -105,10 +106,20 @@ def extract_keywords_from_text(text: str, keywords: List[str]) -> List[str]:
     for keyword in keywords:
         # Normalize keyword
         norm_keyword = unidecode(keyword.lower().strip())
-        # Check if keyword is in text (as a word or phrase)
-        if norm_keyword in text:
+        # Use word boundary matching for exact word/phrase matches
+        # Escape special regex characters in the keyword
+        pattern = r'\b' + re.escape(norm_keyword) + r'\b'
+        if re.search(pattern, text):
             found.append(norm_keyword)
     return found
+
+
+# Scoring weights and penalties for keyword evaluation
+KEYWORD_MATCH_WEIGHT = 0.6  # 60% weight for keyword matching in textual answers
+TEXT_SIMILARITY_WEIGHT = 0.4  # 40% weight for text similarity in textual answers
+KEYWORD_MISS_PENALTY_PERCENT = 30  # Penalty percentage for each missed keyword
+KEYWORD_WRONG_PENALTY_EACH = 20  # Penalty for each wrong keyword present
+KEYWORD_WRONG_PENALTY_MAX = 40  # Maximum penalty for wrong keywords
 
 
 def evaluate_keyword_match(correct_answer: str, user_answer: str, keywords: List[str]) -> int:
@@ -151,8 +162,8 @@ def evaluate_keyword_match(correct_answer: str, user_answer: str, keywords: List
     # - Wrong keywords: penalty
     
     match_score = len(matched_keywords) / len(correct_keywords) * 100
-    miss_penalty = len(missed_keywords) / len(correct_keywords) * 30
-    wrong_penalty = min(len(wrong_keywords) * 20, 40)  # Cap penalty at 40
+    miss_penalty = len(missed_keywords) / len(correct_keywords) * KEYWORD_MISS_PENALTY_PERCENT
+    wrong_penalty = min(len(wrong_keywords) * KEYWORD_WRONG_PENALTY_EACH, KEYWORD_WRONG_PENALTY_MAX)
     
     final_score = match_score - miss_penalty - wrong_penalty
     return max(0, min(100, int(final_score)))
@@ -220,9 +231,9 @@ def evaluate_answer(correct_answer: str, user_answer: str, keywords: Optional[Li
             score_keywords = evaluate_keyword_match(correct_answer, user_answer, keywords)
             score_text = fuzz.WRatio(clean_correct, clean_user)
             
-            # Weight: 60% keywords, 40% text similarity
-            # This ensures correct keywords get rewarded heavily
-            final_score = int((score_keywords * 0.6) + (score_text * 0.4))
+            # Weight: keyword matching and text similarity
+            # Using constants defined at module level
+            final_score = int((score_keywords * KEYWORD_MATCH_WEIGHT) + (score_text * TEXT_SIMILARITY_WEIGHT))
             return min(final_score, 100)
         else:
             # Fallback: use only fuzzy text matching
@@ -250,7 +261,8 @@ def load_keywords_for_topic(topic: str) -> List[str]:
     Load keywords for a specific topic from its template.
     
     Args:
-        topic: The topic name (e.g., 'n-queens', 'minimax')
+        topic: The topic name (e.g., 'n-queens', 'minimax', 'csp')
+               Can use hyphens or underscores (both will be normalized)
         
     Returns:
         List of keywords for this topic, or empty list if not found
@@ -258,7 +270,7 @@ def load_keywords_for_topic(topic: str) -> List[str]:
     import json
     import os
     
-    # Normalize topic name
+    # Normalize topic name: convert hyphens to underscores for file lookup
     topic_normalized = topic.lower().replace("-", "_")
     template_path = os.path.join(os.path.dirname(__file__), "..", "templates", f"{topic_normalized}.json")
     
