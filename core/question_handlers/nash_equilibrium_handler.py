@@ -1,48 +1,92 @@
 # core/question_handlers/nash_equilibrium_handler.py
 
 from typing import Dict, Any, Tuple
+import random
 from ..base_question_handler import BaseQuestionHandler
-
 
 class NashEquilibriumHandler(BaseQuestionHandler):
     """Handler for Nash Equilibrium problem questions."""
-    
+
+    def generate_random_game(self) -> Dict[str, Any]:
+        """Generate a random 2x2 normal-form game."""
+        # Payoffs as (J1, J2)
+        return {
+            "U_L": (random.randint(0, 5), random.randint(0, 5)),
+            "U_R": (random.randint(0, 5), random.randint(0, 5)),
+            "D_L": (random.randint(0, 5), random.randint(0, 5)),
+            "D_R": (random.randint(0, 5), random.randint(0, 5)),
+        }
+
+    def find_nash_pure(self, game: Dict[str, Tuple[int, int]]) -> list:
+        """Return all pure strategy Nash equilibria."""
+        equilibria = []
+
+        # Best responses for J1
+        # For each column (L, R), J1 compares U vs D
+        # J1 wants to maximize first payoff element
+        col_L = [("U", game["U_L"]), ("D", game["D_L"])]
+        col_R = [("U", game["U_R"]), ("D", game["D_R"])]
+
+        best_J1_L = max(col_L, key=lambda x: x[1][0])[0]
+        best_J1_R = max(col_R, key=lambda x: x[1][0])[0]
+
+        # Best responses for J2
+        # For each row (U, D), J2 compares L vs R
+        # J2 wants to maximize second payoff element
+        row_U = [("L", game["U_L"]), ("R", game["U_R"])]
+        row_D = [("L", game["D_L"]), ("R", game["D_R"])]
+
+        best_J2_U = max(row_U, key=lambda x: x[1][1])[0]
+        best_J2_D = max(row_D, key=lambda x: x[1][1])[0]
+
+        # Check each profile
+        profiles = {
+            ("U", "L"): ("U" == best_J1_L and "L" == best_J2_U),
+            ("U", "R"): ("U" == best_J1_R and "R" == best_J2_U),
+            ("D", "L"): ("D" == best_J1_L and "L" == best_J2_D),
+            ("D", "R"): ("D" == best_J1_R and "R" == best_J2_D),
+        }
+
+        return [p for p, ok in profiles.items() if ok]
+
+    def format_game_matrix(self, g):
+        return (
+            f"        J2\n"
+            f"           L        R\n"
+            f"J1 U   {g['U_L']}   {g['U_R']}\n"
+            f"J1 D   {g['D_L']}   {g['D_R']}"
+        )
+
     def generate_custom(self, variant: Dict[str, Any], params: Dict[str, Any]) -> Tuple[str, str]:
-        """
-        Generate Nash Equilibrium question and answer with computation.
-        
-        Args:
-            variant: Question variant
-            params: Parameters (empty for nash, uses static example)
-            
-        Returns:
-            Tuple of (question, answer)
-        """
+
         question_id = variant.get("id", "")
-        
+
+        # --- Dynamic Nash equilibrium computation ---
         if question_id == "nash_equilibrium_dynamic":
-            # For now, use the static example from the template
-            # In the future, we could generate random game matrices
+
+            # 1. generate random game
+            game = self.generate_random_game()
+
+            # 2. compute Nash equilibria
+            equilibria = self.find_nash_pure(game)
+
+            # 3. build question text
             question = (
-                "Pentru jocul dat în forma normală (matricea atașată), există echilibru Nash pur? Care este acesta?\n\n"
-                "Matricea jocului (Jucătorul 1 alege rândul, Jucătorul 2 alege coloana):\n"
-                "Format (Recompensă J1, Recompensă J2)\n\n"
-                "        Jucătorul 2\n"
-                "          Stânga   Dreapta\n"
-                "Jucătorul 1\n"
-                "    Sus     (1, 2)    (0, 1)\n"
-                "    Jos     (2, 1)    (1, 0)"
+                    "Considerați următorul joc în formă normală:\n\n" +
+                    self.format_game_matrix(game) +
+                    "\n\nExistă echilibru Nash pur? Care este acesta?"
             )
-            
-            # Calculate Nash equilibrium
-            # (Jos, Stânga) is the equilibrium because:
-            # - If J1 chooses 'Jos', J2 prefers 'Stânga' (gets 1 vs 0)
-            # - If J2 chooses 'Stânga', J1 prefers 'Jos' (gets 2 vs 1)
-            answer = "Da, există un echilibru Nash pur. Acesta este (Jos, Stânga)."
-            
+
+            # 4. build answer text
+            if equilibria:
+                eq_str = ", ".join([f"({s1}, {s2})" for s1, s2 in equilibria])
+                answer = f"Da, există echilibru Nash pur. Echilibrul(e) este(sunt): {eq_str}."
+            else:
+                answer = "Acest joc nu are niciun echilibru Nash pur."
+
             return question, answer
-        else:
-            # Fallback to template
-            question = self.format_text(variant.get("question", ""), params)
-            answer = self.format_text(variant.get("answer", ""), params)
-            return question, answer
+
+        # --- Fallback for static JSON entry ---
+        question = self.format_text(variant.get("question", ""), params)
+        answer = self.format_text(variant.get("answer", ""), params)
+        return question, answer
