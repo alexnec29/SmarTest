@@ -201,10 +201,11 @@ def answer_test(questions: List = None, correct_answers: List = None):
         correct_answers: List of correct answers (if already generated)
     """
     from core.evaluator import load_keywords_for_topic
+    from core.test_parser import load_test_and_answers
+    import os
     
     if questions is None:
         # Load from file
-        import os
         filename = input("\nEnter questions filename: ").strip()
         # Sanitize filename
         filename = os.path.basename(filename)
@@ -212,13 +213,44 @@ def answer_test(questions: List = None, correct_answers: List = None):
             print(f"File not found: {filename}")
             return
         
-        with open(filename, 'r', encoding='utf-8') as f:
-            content = f.read()
+        # Try to find corresponding answer file
+        answer_filename = None
+        if filename.endswith('.txt'):
+            # Try common patterns like "test.txt" -> "answers.txt" or "test_answers.txt"
+            base_name = filename.replace('.txt', '')
+            possible_answer_files = [
+                base_name.replace('test', 'answers') + '.txt',
+                base_name.replace('questions', 'answers') + '.txt',
+                base_name + '_answers.txt',
+                'answers.txt',
+                'example_answers.txt'
+            ]
+            for af in possible_answer_files:
+                if os.path.exists(af):
+                    answer_filename = af
+                    break
         
-        print("\n" + content)
-        print("\nNote: Automatic evaluation is only available for newly generated tests.")
-        print("Please check your answers manually against the answer key.")
-        return
+        # Ask user if they want to provide answer file
+        if not answer_filename:
+            answer_file_input = input("\nEnter answer filename (or press Enter to skip): ").strip()
+            if answer_file_input:
+                answer_file_input = os.path.basename(answer_file_input)
+                if os.path.exists(answer_file_input):
+                    answer_filename = answer_file_input
+        
+        # Parse files
+        try:
+            questions, correct_answers = load_test_and_answers(filename, answer_filename)
+            if answer_filename:
+                print(f"\n✓ Loaded {len(questions)} questions from '{filename}'")
+                print(f"✓ Loaded {len(correct_answers)} answers from '{answer_filename}'")
+            else:
+                print(f"\n✓ Loaded {len(questions)} questions from '{filename}'")
+                print("⚠ No answer file loaded - manual evaluation only")
+                correct_answers = None
+        except Exception as e:
+            print(f"Error parsing test file: {e}")
+            return
     
     # Answer each question
     user_answers = []
@@ -257,6 +289,10 @@ def answer_test(questions: List = None, correct_answers: List = None):
         
         avg_score = sum(scores) / len(scores)
         print(f"\nAverage Score: {avg_score:.1f}%")
+        print("=" * 60)
+    else:
+        print("\nNo automatic evaluation available.")
+        print("Please check your answers manually.")
         print("=" * 60)
 
 
