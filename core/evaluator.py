@@ -12,8 +12,14 @@ def extract_structured_data(text: str) -> str:
     Vital pentru N-Queens (liste) și Nash Equilibrium (tupluri).
     Prioritizes longer/more complete structures.
     """
-    # Caută formatul [...] sau (...) - find all matches
-    # Use non-greedy matching but allow nested content
+    # Find all matches for:
+    # - Parentheses: (...) with content that may include commas
+    # - Brackets: [...] with content that may include commas
+    # Pattern explanation:
+    # - \( or \[ : opening bracket/paren
+    # - [^()]* : any characters except brackets/parens
+    # - (?:,\s*[^()]*)* : comma-separated elements (non-capturing group)
+    # - \) or \] : closing bracket/paren
     matches = re.findall(r'(\([^()]*(?:,\s*[^()]*)*\)|\[[^\[\]]*(?:,\s*[^\[\]]*)*\])', text)
     
     if not matches:
@@ -146,6 +152,9 @@ KEYWORD_MISS_PENALTY_PERCENT = 25  # Redus de la 30
 KEYWORD_WRONG_PENALTY_EACH = 10  # Redus de la 20 (pentru a nu depuncta drastic sinonimele)
 KEYWORD_WRONG_PENALTY_MAX = 30  # Redus de la 40
 
+# Nash equilibrium scoring constants
+WRONG_NASH_ANSWER_SCORE = 20  # Score for wrong Nash equilibrium coordinates
+
 
 def evaluate_keyword_match(correct_answer: str, user_answer: str, keywords: List[str]) -> int:
     if not keywords:
@@ -250,7 +259,7 @@ def evaluate_answer(correct_answer: str, user_answer: str, keywords: Optional[Li
                 score_key_element = 100
             else:
                 # Wrong Nash answer - give very low score
-                score_key_element = 20
+                score_key_element = WRONG_NASH_ANSWER_SCORE
         else:
             # Dacă e listă (paranteze pătrate), ordinea contează mai puțin (N-Queens)
             score_key_element = fuzz.token_sort_ratio(correct_struct, user_struct)

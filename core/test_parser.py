@@ -95,16 +95,11 @@ def map_topic_name_to_id(topic_name: str) -> str:
     Returns:
         The topic ID (e.g., "n-queens")
     """
-    # Topic mapping based on TestBuilder.AVAILABLE_TOPICS
-    topic_mapping = {
-        "N-Queens Problem (Backtracking)": "n-queens",
-        "Knight's Tour Problem": "knights-tour",
-        "Graph Coloring (CSP)": "graph-coloring",
-        "Generalized Hanoi Towers": "generalised-hanoi",
-        "Minimax with Alpha-Beta Pruning": "minimax",
-        "Nash Equilibrium (Game Theory)": "nash-equilibrium",
-        "Constraint Satisfaction Problems": "csp",
-    }
+    # Import here to avoid circular dependency
+    from .test_builder import TestBuilder
+    
+    # Get the mapping from TestBuilder to ensure consistency
+    topic_mapping = {v: k for k, v in TestBuilder.AVAILABLE_TOPICS.items()}
     
     return topic_mapping.get(topic_name, "")
 
