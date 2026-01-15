@@ -12,15 +12,18 @@ def extract_structured_data(text: str) -> str:
     Vital pentru N-Queens (liste) și Nash Equilibrium (tupluri).
     Prioritizes longer/more complete structures.
     """
-    # Find all matches for:
-    # - Parentheses: (...) with content that may include commas
-    # - Brackets: [...] with content that may include commas
-    # Pattern explanation:
-    # - \( or \[ : opening bracket/paren
-    # - [^()]* : any characters except brackets/parens
-    # - (?:,\s*[^()]*)* : comma-separated elements (non-capturing group)
-    # - \) or \] : closing bracket/paren
-    matches = re.findall(r'(\([^()]*(?:,\s*[^()]*)*\)|\[[^\[\]]*(?:,\s*[^\[\]]*)*\])', text)
+    # Find all matches for parentheses and brackets
+    # Using a simpler pattern to avoid ReDoS vulnerability
+    # Pattern matches: (...) or [...] with any content except nested brackets
+    matches = []
+    
+    # Find all parentheses groups
+    paren_matches = re.findall(r'\(([^()]+)\)', text)
+    matches.extend([f'({m})' for m in paren_matches])
+    
+    # Find all bracket groups
+    bracket_matches = re.findall(r'\[([^\[\]]+)\]', text)
+    matches.extend([f'[{m}]' for m in bracket_matches])
     
     if not matches:
         return ""
