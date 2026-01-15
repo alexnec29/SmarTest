@@ -50,11 +50,13 @@ class NashEquilibriumHandler(BaseQuestionHandler):
         return [p for p, ok in profiles.items() if ok]
 
     def format_game_matrix(self, g):
+        """Format game matrix with Romanian terminology."""
         return (
-            f"        J2\n"
-            f"           L        R\n"
-            f"J1 U   {g['U_L']}   {g['U_R']}\n"
-            f"J1 D   {g['D_L']}   {g['D_R']}"
+            f"           Jucătorul 2\n"
+            f"           Stânga     Dreapta\n"
+            f"Jucătorul 1\n"
+            f"  Sus      {g['U_L']}      {g['U_R']}\n"
+            f"  Jos      {g['D_L']}      {g['D_R']}"
         )
 
     def generate_custom(self, variant: Dict[str, Any], params: Dict[str, Any]) -> Tuple[str, str]:
@@ -77,9 +79,15 @@ class NashEquilibriumHandler(BaseQuestionHandler):
                     "\n\nExistă echilibru Nash pur? Care este acesta?"
             )
 
-            # 4. build answer text
+            # 4. build answer text with Romanian terminology
             if equilibria:
-                eq_str = ", ".join([f"({s1}, {s2})" for s1, s2 in equilibria])
+                # Map U->Sus, D->Jos, L->Stânga, R->Dreapta
+                translation_map = {
+                    'U': 'Sus', 'D': 'Jos',
+                    'L': 'Stânga', 'R': 'Dreapta'
+                }
+                eq_str = ", ".join([f"({translation_map.get(s1, s1)}, {translation_map.get(s2, s2)})" 
+                                   for s1, s2 in equilibria])
                 answer = f"Da, există echilibru Nash pur. Echilibrul(e) este(sunt): {eq_str}."
             else:
                 answer = "Acest joc nu are niciun echilibru Nash pur."

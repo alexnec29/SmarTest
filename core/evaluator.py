@@ -10,10 +10,24 @@ def extract_structured_data(text: str) -> str:
     """
     Extrage structuri de date precum liste [...] sau tupluri (...)
     Vital pentru N-Queens (liste) și Nash Equilibrium (tupluri).
+    Prioritizes longer/more complete structures.
     """
-    # Caută formatul [...] sau (...)
-    match = re.search(r'([\[\(].*?[\]\)])', text)
-    return match.group(1).strip() if match else ""
+    # Caută formatul [...] sau (...) - find all matches
+    # Use non-greedy matching but allow nested content
+    matches = re.findall(r'(\([^()]*(?:,\s*[^()]*)*\)|\[[^\[\]]*(?:,\s*[^\[\]]*)*\])', text)
+    
+    if not matches:
+        return ""
+    
+    # Return the match with the most content (commas indicate multiple elements)
+    # Prioritize structures with commas (actual tuples/lists with multiple elements)
+    matches_with_commas = [m for m in matches if ',' in m]
+    
+    if matches_with_commas:
+        return max(matches_with_commas, key=len).strip()
+    
+    # Fallback to longest match
+    return max(matches, key=len).strip() if matches else ""
 
 
 def is_primarily_numeric_answer(text: str) -> bool:
@@ -159,6 +173,29 @@ def evaluate_keyword_match(correct_answer: str, user_answer: str, keywords: List
     return max(0, min(100, int(final_score)))
 
 
+def normalize_nash_answer(text: str) -> str:
+    """
+    Normalize Nash equilibrium answers to handle Romanian terminology variations.
+    Maps Sus/Jos/Stanga/Dreapta to U/D/L/R for consistent comparison.
+    """
+    # Create a normalized version for comparison
+    normalized = text.lower()
+    
+    # Replace Romanian terms with standardized abbreviations
+    replacements = [
+        (r'\bsus\b', 'u'),
+        (r'\bjos\b', 'd'),
+        (r'\bstanga\b', 'l'),
+        (r'\bstânga\b', 'l'),
+        (r'\bdreapta\b', 'r'),
+    ]
+    
+    for pattern, replacement in replacements:
+        normalized = re.sub(pattern, replacement, normalized)
+    
+    return normalized
+
+
 def evaluate_answer(correct_answer: str, user_answer: str, keywords: Optional[List[str]] = None) -> int:
     if not user_answer:
         return 0
@@ -166,9 +203,14 @@ def evaluate_answer(correct_answer: str, user_answer: str, keywords: Optional[Li
     clean_correct = unidecode(correct_answer.lower().strip())
     clean_user = unidecode(user_answer.lower().strip())
 
+    # Special handling for Nash equilibrium answers with Romanian terminology
+    # Normalize both answers to handle variations like "Sus" vs "U", "Stânga" vs "L", etc.
+    norm_correct = normalize_nash_answer(clean_correct)
+    norm_user = normalize_nash_answer(clean_user)
+
     # 1. Extragere structuri (Liste SAU Tupluri)
-    correct_struct = extract_structured_data(clean_correct)
-    user_struct = extract_structured_data(clean_user)
+    correct_struct = extract_structured_data(norm_correct)
+    user_struct = extract_structured_data(norm_user)
 
     # 2. Extragere Numere (suport extins)
     correct_num = extract_standalone_number(clean_correct)
@@ -199,7 +241,16 @@ def evaluate_answer(correct_answer: str, user_answer: str, keywords: Optional[Li
     if correct_struct:
         # Dacă e tuplu (paranteze rotunde), ordinea contează mai mult (Nash)
         if '(' in correct_struct:
-            score_key_element = fuzz.ratio(correct_struct, user_struct)
+            # For Nash equilibrium tuples, use exact matching for the content
+            # Strip parentheses and spaces for comparison
+            correct_content = correct_struct.strip('()').replace(' ', '').lower()
+            user_content = user_struct.strip('()').replace(' ', '').lower()
+            
+            if correct_content == user_content:
+                score_key_element = 100
+            else:
+                # Wrong Nash answer - give very low score
+                score_key_element = 20
         else:
             # Dacă e listă (paranteze pătrate), ordinea contează mai puțin (N-Queens)
             score_key_element = fuzz.token_sort_ratio(correct_struct, user_struct)
@@ -224,8 +275,8 @@ def evaluate_answer(correct_answer: str, user_answer: str, keywords: Optional[Li
         else:
             score_key_element = 100
 
-            # Calcul final pentru cazurile A și B
-    score_text = fuzz.WRatio(clean_correct, clean_user)
+    # Calcul final pentru cazurile A și B
+    score_text = fuzz.WRatio(norm_correct, norm_user)
 
     if correct_struct or (correct_num and is_numeric_answer):
         # Structura/Numărul contează 80% (crescut de la 70%)
